@@ -1,0 +1,85 @@
+{
+  "offline_standalone_opened": true,
+  "external_requests": [],
+  "initial_document_url": "http://127.0.0.1:8765/Kinkakuji.html?render=light&view=17&inspect=1",
+  "offline_after_document_load": true,
+  "file_url_note": "Managed Chromium blocks file:// navigation. The self-contained document was tested via localhost, then networking was disabled.",
+  "orbit_and_reset": true,
+  "png_export": true,
+  "ground_floor_view": true,
+  "path_tracing": {
+    "state": {
+      "ready": true,
+      "preset": "17",
+      "mode": "pathtrace",
+      "samples": 1.1111111111111112,
+      "traceBuilding": false,
+      "drawCalls": 65,
+      "triangles": 2173677,
+      "fps": 0.6573325445355677,
+      "position": [
+        3.3969998359680176,
+        9.226997375488281,
+        4.086999893188477
+      ],
+      "contextLost": false,
+      "orbit": {
+        "enabled": true,
+        "rotate": true,
+        "state": -1,
+        "pointers": [],
+        "canvas": true
+      }
+    },
+    "error": null
+  },
+  "page_errors": [],
+  "console": [
+    {
+      "type": "warning",
+      "text": "RGBELoader has been deprecated. Please use HDRLoader instead."
+    },
+    {
+      "type": "warning",
+      "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead."
+    },
+    {
+      "type": "warning",
+      "text": "WebGLPathTracer: This class has been deprecated and will be removed in a future release. Use \"WebGPUPathTracer\" instead."
+    },
+    {
+      "type": "warning",
+      "text": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+    },
+    {
+      "type": "warning",
+      "text": "MeshBVH: \"maxLeafTris\" option has been deprecated. Use \"targetLeafSize\", instead."
+    },
+    {
+      "type": "warning",
+      "text": "MeshBVH: \"maxLeafTris\" option has been deprecated. Use \"targetLeafSize\", instead."
+    },
+    {
+      "type": "warning",
+      "text": "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+    }
+  ],
+  "test_renderer": "Chromium / ANGLE SwiftShader software renderer.",
+  "path_trace_test_resolution": [
+    320,
+    240
+  ],
+  "prior_higher_resolution_test": "An earlier 600x500 test exceeded 240 seconds before decoding quantized vertex buffers for ray tracing was corrected.",
+  "review_image_note": "offline-high.png captures the initial complete sample, not a converged render.",
+  "pixel_stats": {
+    "min": 0,
+    "max": 42.7746467590332,
+    "bad": 0,
+    "target": [
+      320,
+      240
+    ],
+    "opacity": 1,
+    "alpha": false
+  }
+}

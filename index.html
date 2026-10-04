@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142220">
+  <title>金閣寺 — WebGL</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ccab59' d='M3 19L16 12l13 7H3zm4 3h18v7H7zM7 10l9-6 9 6H7zm4 2h10v4H11z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="viewer" aria-label="金閣寺の3Dビュー"></main>
+  <header class="masthead">
+    <div class="identity"><span class="eyebrow">KYOTO · ROKUON-JI</span><h1>金閣寺</h1><p>光と陰影で巡る、金色の楼閣。</p></div>
+    <button class="icon-button" id="save-image" title="現在の画像を保存" aria-label="現在の画像を保存" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></svg></button>
+  </header>
+  <div id="loading" role="status"><span class="loading-symbol">金</span><p id="loading-text">金閣寺を読み込んでいます</p><div class="loading-track"><i id="loading-bar"></i></div></div>
+  <div class="controls-panel">
+    <nav id="camera-presets" aria-label="視点の切り替え"></nav>
+    <div class="controls-row"><label class="quality-label" for="quality">描画</label><select id="quality" disabled><option value="realtime">リアルタイム</option><option value="light">軽量</option><option value="pathtrace">高画質 · 静止時に精細化</option></select><span id="render-status" role="status">読み込み中</span><button id="reset-view" class="text-button" disabled>視点を戻す</button></div>
+  </div>
+  <footer><span>ドラッグで回転 · ホイールで拡大 · 2本指で移動</span><span class="footer-note">KINKAKU-JI / WEBGL</span></footer>
+  <div id="error" role="alert" hidden></div>
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "kinkakuji-webgl",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "serve": "python3 serve.py"
+  },
+  "dependencies": {
+    "three": "0.185.0",
+    "three-gpu-pathtracer": "0.0.26",
+    "three-mesh-bvh": "0.9.15",
+    "xatlas-web": "0.1.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "esbuild": "0.25.5",
+    "meshoptimizer": "1.3.0"
+  }
+}
