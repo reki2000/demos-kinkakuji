@@ -10,6 +10,7 @@ import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { WebGLPathTracer } from 'three-gpu-pathtracer';
 import { OfflineBVHWorker } from './bvh-worker-client.js';
+import { createGarden, gardenCamera } from './garden.js';
 
 const $ = id => document.getElementById(id);
 const mobile = window.matchMedia('(pointer: coarse)').matches;
@@ -162,18 +163,33 @@ function expandInstances(instanced) {
   const mesh=new THREE.Mesh(g,instanced.material);mesh.name=instanced.name;mesh.visible=instanced.visible;mesh.userData.expanded=true;return mesh;
 }
 
-function setupWater() {
+function setupWater(geometry) {
   const normals=canvasTexture((ctx,n)=>{
-    const image=ctx.createImageData(n,n);for(let y=0;y<n;y++)for(let x=0;x<n;x++){
-      const i=(y*n+x)*4;image.data[i]=128+Math.sin(x*.08+y*.023)*10;image.data[i+1]=128+Math.sin(y*.07-x*.039)*10;image.data[i+2]=253;image.data[i+3]=255;
-    }ctx.putImageData(image,0,0);
+    const image = ctx.createImageData(n, n);
+    // Integer frequencies make the ripple normals tile without seams.
+    const waves = [[2, 5, 5.5], [-5, 2, 3.1], [7, 6, 2.2], [-9, 13, 1.7], [13, 19, 1.0]];
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      let nx = 0, ny = 0;
+      waves.forEach(([fx, fy, strength], phase) => {
+        const slope = Math.sin((x * fx + y * fy) * 2 * Math.PI / n + phase) * strength / Math.hypot(fx, fy);
+        nx += slope * fx;
+        ny += slope * fy;
+      });
+      const i = (y * n + x) * 4;
+      image.data.set([128 + nx, 128 + ny, 255, 255], i);
+    }
+    ctx.putImageData(image, 0, 0);
   },256,false);
-  water=new Water(new THREE.PlaneGeometry(240,240),{textureWidth:mobile?512:1024,textureHeight:mobile?512:1024,waterNormals:normals,sunDirection:new THREE.Vector3(...config.sun.direction),sunColor:0xfff1cc,waterColor:0x28433b,distortionScale:.30,alpha:1});
+  water=new Water(geometry,{textureWidth:mobile?512:1024,textureHeight:mobile?512:1024,waterNormals:normals,sunDirection:new THREE.Vector3(...config.sun.direction),sunColor:0xfff1cc,waterColor:0x294533,distortionScale:.20,alpha:1});
   water.rotation.x=-Math.PI/2;water.position.y=config.pondHeight;water.name='Pond reflections';scene.add(water);
-  water.material.uniforms.size.value=12;
+  water.material.uniforms.size.value=9;
+  const renderReflection = water.onBeforeRender;
+  water.onBeforeRender = (...args) => {
+    if (!scene.overrideMaterial) renderReflection.apply(water, args);
+  };
   const material=new THREE.MeshPhysicalMaterial({color:0x314a3e,roughness:.025,metalness:0,transmission:.60,ior:1.333,thickness:.35,side:THREE.DoubleSide,normalMap:normals,normalScale:new THREE.Vector2(.04,.04),attenuationColor:new THREE.Color(0x203b31),attenuationDistance:2});
   traceWater=new THREE.Mesh(water.geometry,material);traceWater.copy(water,false);traceWater.material=material;traceWater.onBeforeRender=()=>{};
-  const bed=new THREE.Mesh(new THREE.PlaneGeometry(240,240),new THREE.MeshStandardMaterial({color:0x142820,roughness:1}));bed.rotation.x=-Math.PI/2;bed.position.y=config.pondHeight-.55;bed.name='Pond bed';scene.add(bed);
+  const bed=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0x142820,roughness:1}));bed.rotation.x=-Math.PI/2;bed.position.y=config.pondHeight-.55;bed.name='Pond bed';scene.add(bed);
 }
 
 function setupLights() {
@@ -187,7 +203,10 @@ function setupLights() {
 
 function setupComposer() {
   composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-  ao=new GTAOPass(scene,camera,innerWidth,innerHeight,undefined,{radius:.28,thickness:.7,distanceFallOff:1});ao.blendIntensity=.65;ao.enabled=!mobile;composer.addPass(ao);composer.addPass(new OutputPass());
+  ao=new GTAOPass(scene,camera,innerWidth,innerHeight,undefined,{radius:.28,thickness:.7,distanceFallOff:1});ao.blendIntensity=.65;ao.enabled=!mobile;
+  // The override normal pass treats foliage cards as solid rectangles.
+  ao.setSceneClipBox(new THREE.Box3(new THREE.Vector3(-10, 0, -8), new THREE.Vector3(9, 14, 8)));
+  composer.addPass(ao);composer.addPass(new OutputPass());
 }
 
 function setPreset(id) {
@@ -285,7 +304,11 @@ async function init() {
       const texture=surfaceTexture(surface);mat.map=texture;mat.bumpMap=texture;mat.bumpScale=surface==='gold'?.00012:surface==='wood'?.012:surface==='roof'?.018:.035;mat.needsUpdate=true;
     }
   });
-  addFoliage();setupLights();setupWater();setupComposer();
+  const garden = createGarden(config.pondHeight, surfaceTexture('moss'));
+  config.cameras.push(gardenCamera);
+  scene.add(garden.banks, garden.woodland);
+  landscapeGroups.garden.push(garden.woodland);
+  addFoliage();setupLights();setupWater(garden.waterGeometry);setupComposer();
   for(const preset of config.cameras){const button=document.createElement('button');button.textContent=preset.label;button.dataset.camera=preset.id;button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>setPreset(preset.id));$('camera-presets').appendChild(button);}
   mode=lightDefault?'light':'realtime';$('quality').value=mode;
   setPreset(params.get('view')||'01');ready=true;resize();renderRealtime();progress('準備ができました',100);$('loading').classList.add('done');
